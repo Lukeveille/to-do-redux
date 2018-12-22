@@ -1,19 +1,31 @@
-import { applyMiddleware, combineReducers, createStore } from "redux";
 import React, { Component } from 'react';
+import { applyMiddleware, createStore } from "redux";
+import axios from "axios";
+import logger from "redux-logger";
+import thunk from "redux-thunk";
+import promise from "redux-promise-middleware";
 import './App.css';
 
-const userReducer = (state={}, action) => {
+const initialState = {
+  fetching: false,
+  fetched: false,
+  users: [],
+  error: null,
+}
+
+const reducer = (state=initialState, action) => {
   switch(action.type) {
-    case "CHANGE_NAME": {
-      state = {...state, name: action.payload}
+    case "FETCH_USERS": {
+      state = {...state, fetching: true}
       break;
     }
-    case "CHANGE_AGE": {
-      state = {...state, age: action.payload}
+    case "FETCH_USERS_REJECTED": {
+      state = {...state, fetching: false, error: action.payload}
       break;
     }
-    case "E": {
-      throw new Error("not this time");
+    case "FETCH_USERS_FULFILLED": {
+      state = {...state, fetching: false, fetched: true, user: action.payload}
+      break;
     }
     default: {
       break;
@@ -22,39 +34,17 @@ const userReducer = (state={}, action) => {
   return state;
 };
 
-const tweetsReducer = (state=[], action) => {
-  return state;
-};
-
-const reducers = combineReducers({
-  user: userReducer,
-  tweets: tweetsReducer,
-})
-
-const logger = (store) => (next) => (action) => {
-  console.log(action)
-  next(action)
-}
-
-const error = (store) => (next) => (action) => {
-  try {
-    next(action);
-  } catch(e) {
-    console.log("No Worky", e);
-  }
-}
-
-const middleware = applyMiddleware(logger, error)
-
-const store = createStore(reducers, middleware);
+const middleware = applyMiddleware(thunk, logger, promise())
+const store = createStore(reducer, middleware);
 
 store.subscribe(() => {
   console.log("store change", store.getState());
 })
 
-store.dispatch({type: "CHANGE_NAME", payload: 'Luke'});
-store.dispatch({type: "CHANGE_AGE", payload: 30});
-store.dispatch({type: "E", payload: 30});
+store.dispatch({
+  type: 'FETCH_USERS',
+  payload: axios.get("http://rest.learncode.academy/api/wstern/users"),
+})
 
 class App extends Component {
   render() {
