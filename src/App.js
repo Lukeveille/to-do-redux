@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { applyMiddleware, createStore } from "redux";
 import axios from "axios";
 import logger from "redux-logger";
-import thunk from "redux-thunk";
+
 import promise from "redux-promise-middleware";
 import './App.css';
 
@@ -30,12 +30,12 @@ const reducer = (state=initialState, action) => {
   }
 };
 
-const middleware = applyMiddleware(thunk, logger, promise())
+const middleware = applyMiddleware(logger, promise())
 const store = createStore(reducer, middleware);
 
-store.subscribe(() => {
-  console.log("store change", store.getState());
-})
+// store.subscribe(() => {
+//   console.log("store change", store.getState());
+// })
 
 store.dispatch({
   type: 'FETCH_USERS',
