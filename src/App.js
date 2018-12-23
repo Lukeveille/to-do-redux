@@ -15,23 +15,19 @@ const initialState = {
 
 const reducer = (state=initialState, action) => {
   switch(action.type) {
-    case "FETCH_USERS": {
-      state = {...state, fetching: true}
-      break;
+    case "FETCH_USERS_PENDING": {
+      return {...state, fetching: true}
     }
     case "FETCH_USERS_REJECTED": {
-      state = {...state, fetching: false, error: action.payload}
-      break;
+      return {...state, fetching: false, error: action.payload}
     }
     case "FETCH_USERS_FULFILLED": {
-      state = {...state, fetching: false, fetched: true, user: action.payload}
-      break;
+      return  {...state, fetching: false, fetched: true, user: action.payload}
     }
     default: {
-      break;
+      return state;
     }
   }
-  return state;
 };
 
 const middleware = applyMiddleware(thunk, logger, promise())
